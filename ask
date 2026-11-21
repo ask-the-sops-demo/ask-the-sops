@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# ask: run Ask the SOPs from the project folder. Builds the app the first time.
+#   ./ask list | ./ask list --all | ./ask show SOP-CC-01 | ./ask search <words>
+set -euo pipefail
+cd "$(dirname "$0")"
+if [ ! -f target/ask-the-sops.jar ]; then
+  echo "Building Ask the SOPs (first run)..." >&2
+  mvn -q package -DskipTests
+fi
+exec java -jar target/ask-the-sops.jar "$@"

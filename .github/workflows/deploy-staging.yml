@@ -1,0 +1,35 @@
+# Gate 3: every merge to main is built and "deployed" to the staging environment.
+# For the workshop, deploying means publishing the built app as a downloadable artifact
+# that testers (for example, a pharmacist) can try before it is released.
+name: Deploy to staging
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build and test
+        run: mvn -B verify
+      - name: Smoke test
+        run: ./scripts/smoke-test.sh
+      - name: Publish to staging
+        uses: actions/upload-artifact@v4
+        with:
+          name: ask-the-sops-staging-${{ github.sha }}
+          path: |
+            target/ask-the-sops.jar
+            sops/
+            ask

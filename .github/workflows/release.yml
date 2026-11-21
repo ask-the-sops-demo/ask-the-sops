@@ -1,0 +1,36 @@
+# Gate 4: a version tag (for example v1.0.0) on a commit that passed staging
+# is released to production. The "production" environment has required reviewers,
+# so this job waits until a named person approves it.
+name: Release to production
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release-production:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build and test
+        run: mvn -B verify
+      - name: Smoke test
+        run: ./scripts/smoke-test.sh
+      - name: Package the release
+        run: |
+          mkdir -p dist/ask-the-sops
+          cp -r target/ask-the-sops.jar sops ask README.md dist/ask-the-sops/
+          (cd dist && zip -r "ask-the-sops-${GITHUB_REF_NAME}.zip" ask-the-sops)
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "dist/ask-the-sops-${GITHUB_REF_NAME}.zip" --generate-notes
