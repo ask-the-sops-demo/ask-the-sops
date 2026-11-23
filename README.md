@@ -27,10 +27,24 @@ mvn verify                      # build, run the tests and check coverage
 | `src/test/java/ca/askthesops/` | JUnit 5 tests |
 | `docs/PRD.md` | What the product is for, and what's in and out of scope |
 | `docs/adr/` | Architecture decision records |
+| `docs/prd/` | Short PRDs for proposed improvements |
+| `.claude/` | Claude Code settings and the workshop skills |
 | `CLAUDE.md` | Project memory for Claude Code: stack, commands, rules |
 | `.github/` | Pull request template and GitHub Actions workflows |
 | `scripts/` | The workshop setup check and the smoke test |
 | `.devcontainer/` | The GitHub Codespaces backup environment |
+
+## Workshop skills
+
+The project includes three Claude Code skills in `.claude/skills/`. Start Claude Code in this folder (`claude`), then type:
+
+| Skill | What it does |
+|---|---|
+| `/prd "your idea"` | Interviews you, then writes a one-page PRD in `docs/prd/` |
+| `/adr "a decision"` | Writes a numbered architecture decision record in `docs/adr/` |
+| `/story docs/prd/<file>.md` | Drafts Jira stories with acceptance criteria, then creates them in the SOP project after you approve |
+
+Type `/skills` to see every skill available, including Claude Code's built-in ones.
 
 ## How we work
 

@@ -28,7 +28,7 @@ esac
 
 # 3. Java 21 or later
 if command -v java >/dev/null 2>&1; then
-  jv=$(java -version 2>&1 | head -n1 | sed -E 's/.*version "([0-9]+).*/\1/')
+  jv=$(java -version 2>&1 | grep -m1 'version "' | sed -E 's/.*version "([0-9]+).*/\1/')
   if [ "${jv:-0}" -ge 21 ] 2>/dev/null; then ok "Java $jv"
   else bad "Java ${jv:-unknown} found; 21 or later is needed" "sudo apt install -y openjdk-21-jdk"; fi
 else bad "Java not found" "sudo apt install -y openjdk-21-jdk"; fi
@@ -45,13 +45,13 @@ else bad "Git name or email not set" "git config --global user.name \"Your Name\
 # 6. GitHub CLI signed in
 if command -v gh >/dev/null 2>&1; then
   if gh auth status >/dev/null 2>&1; then ok "GitHub CLI signed in"
-  else bad "GitHub CLI not signed in" "gh auth login, then gh auth setup-git"; fi
-else bad "GitHub CLI (gh) not found" "sudo apt install -y gh"; fi
+  else note "GitHub CLI not signed in (optional for participants)" "Only needed to push: gh auth login, then gh auth setup-git"; fi
+else note "GitHub CLI (gh) not installed (optional for participants)" "Only needed to push: sudo apt install -y gh"; fi
 
 # 7. Can reach the demo repo on GitHub
 if git remote get-url origin >/dev/null 2>&1 && git ls-remote --exit-code origin HEAD >/dev/null 2>&1; then
   ok "Can reach the demo repo on GitHub"
-else bad "Cannot reach the demo repo" "Run this from inside the cloned repo; check gh auth status and your organization invitation"; fi
+else bad "Cannot reach the demo repo" "Run this from inside the cloned project folder (~/code/ask-the-sops)"; fi
 
 # 8. Claude Code
 if command -v claude >/dev/null 2>&1; then ok "Claude Code $(claude --version 2>/dev/null | head -n1)"
@@ -66,15 +66,19 @@ if command -v claude >/dev/null 2>&1; then
   else bad "Atlassian MCP server not added" "claude mcp add --transport http atlassian https://mcp.atlassian.com/v2/mcp"; fi
 fi
 
-# 10. Ollama and the embedding models
+# 9b. The workshop skills
+if [ -f .claude/skills/prd/SKILL.md ] && [ -f .claude/skills/adr/SKILL.md ] && [ -f .claude/skills/story/SKILL.md ]; then ok "Workshop skills found: /prd, /adr, /story"
+else bad "Workshop skills missing" "Run this from inside ~/code/ask-the-sops, and run git pull"; fi
+
+# 10. Ollama and the embedding models (optional for participants)
 if command -v ollama >/dev/null 2>&1; then
   if models=$(curl -fsS http://localhost:11434/api/tags 2>/dev/null); then
     for m in all-minilm bge-m3; do
       if echo "$models" | grep -q "\"$m"; then ok "Embedding model $m downloaded"
-      else bad "Embedding model $m missing" "ollama pull $m"; fi
+      else note "Embedding model $m not downloaded (optional)" "ollama pull $m"; fi
     done
   else note "Ollama installed but not running" "Run 'ollama serve' in another terminal, then run this check again"; fi
-else bad "Ollama not found" "curl -fsSL https://ollama.com/install.sh | sh"; fi
+else note "Ollama not installed (optional, for the RAG demo)" "curl -fsSL https://ollama.com/install.sh | sh"; fi
 
 # 11. Optional: run the tests
 if [ "$1" = "--with-tests" ]; then
@@ -84,6 +88,6 @@ fi
 
 echo "--------------------"
 echo "PASS: $pass   WARN: $warn   FAIL: $fail"
-if [ "$fail" -eq 0 ]; then echo "Your laptop is ready. Next: the hello pull request (Part 9)."
+if [ "$fail" -eq 0 ]; then echo "Your laptop is ready. Next: your hello ticket (Part 7.2 of the guide)."
 else echo "Fix the FAIL lines above, then run this again."; fi
 exit "$fail"

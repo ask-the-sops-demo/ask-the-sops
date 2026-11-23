@@ -18,7 +18,8 @@ A Java command-line app that searches fictional pharmacy SOPs. It is a training 
 - `sops/`: one Markdown file per SOP version, with front matter (`id`, `title`, `version`, `effective`, `status`). Sections start with `## <number> <heading>`.
 - `src/main/java/ca/askthesops/`: `SopParser` (Markdown to `Sop`), `SopLibrary` (loads a folder), `KeywordSearch` (TF-IDF over sections), `App` (command line).
 - `src/test/java/ca/askthesops/`: one test class per main class.
-- `docs/PRD.md` and `docs/adr/`: read these before proposing design changes.
+- `docs/PRD.md`, `docs/prd/` (feature PRDs) and `docs/adr/`: read these before proposing design changes.
+- `.claude/skills/`: the `/prd`, `/adr` and `/story` skills used to plan work.
 
 ## Conventions
 - Records for data (`Sop`, `Section`, `SearchResult`); small final classes for behaviour.
