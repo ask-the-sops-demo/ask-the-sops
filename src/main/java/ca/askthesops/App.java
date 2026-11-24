@@ -36,6 +36,7 @@ public final class App {
 
     public static void main(String[] args) throws IOException {
         SopLibrary library = SopLibrary.load(Path.of(System.getProperty("sops.dir", "sops")));
+        library.warnings().forEach(warning -> System.err.println("Warning: " + warning));
         PrintStream out = new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8);
         int exitCode = new App(library).run(args, out);
         if (exitCode != 0) {
